@@ -4,7 +4,7 @@ const passport = require('passport');
 
 const User = require('../../users/model/User');
 
-const keys = "iAmBeCoMeDeAtH" || process.env.SECRET_KEY;
+const keys = process.env.SECRET_KEY;
 
 const opts = {};
 
@@ -13,15 +13,9 @@ opts.secretOrKey = keys;
 
 module.exports = passport => {
     passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
-        /*
-            {
-                id: 123456,
-                username: "hamsterlord",
-                email: "hamster@lord.com",
-                password: "abc123"
-            }
+        console.log('FROM JWT')
+        console.log(jwt_payload)
 
-        */
         User.findById(jwt_payload.id)
             .then(user => {
                 if (user) {

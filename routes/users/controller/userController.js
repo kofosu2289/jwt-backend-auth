@@ -9,6 +9,9 @@ module.exports = {
 
             User.findOne({email: params.email})
                 .then(user => {
+                    console.log('---')
+                    console.log(user)
+
                   if (user) {
                     let errors = {};
                     errors.email = "Email already exists";
@@ -39,15 +42,27 @@ module.exports = {
                 
 
         });
-    }, login: function(params) {
+    }, 
+    login: function(params) {
 
-        const email = params.email;
-        const password = params.password;
+        let email = params.email;
+        let password = params.password;
+        let username = params.username;
 
+        let loginCred = {}
+
+        if (username) {
+            username = username
+            loginCred.username = username;
+        } else if (email) {
+         
+            loginCred.email = email;
+        }
+        
         return new Promise(function(resolve, reject) {
 
             User
-            .findOne({email})
+            .findOne(loginCred)
             .then(user => {
                 if (!user) {
                     let errors = {};
@@ -61,10 +76,10 @@ module.exports = {
                         .then(isMatch => {
 
                             if (isMatch) {
+                                
                                 const payload = {
                                     id: user._id,
-                                    email: user.email,
-                                    username: user.username
+                                    email: user.email
                                 }
 
                                 jwt.sign(payload, process.env.SECRET_KEY, {
@@ -82,18 +97,20 @@ module.exports = {
 
                             } else {
                                 let errors = {};
-                                errors.password = "Password incorrect";
+                                errors.message = "User not found"
                                 errors.status = 400;
                                 reject(errors)
                             }
 
-                         
-
-    
-
                         })
 
                 }
+            })
+            .catch(err => {
+                let errors = {};
+                errors.password = "Password incorrect";
+                errors.status = 400;
+                reject(errors)
             })
             
 
